@@ -1,0 +1,2 @@
+select employee.IRSNumber as 'AFM', employee.Firstname as 'First Name', employee.Lastname as 'Last Name', works.StoreID as 'Storeid' , works.WorkerPosition as 'Position'
+from employee INNER JOIN works on employee.IRSNumber=works.IRSNumber;

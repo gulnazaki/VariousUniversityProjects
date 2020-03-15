@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>
+    Επιλογή πλάνου χρέωσης<br>
+    <small class="text-muted">Επιλέξτε κάποιο πλάνο με κλικ στην αντίστοιχη εικόνα</small>
+</h1><hr>
+
+<form class="was-validated" id="billingForm" method="post" action="">
+    <dl class="row">
+    <dt class="col-sm-5"><h4></h4></dt>
+    <dt class="col-sm-5"><h4>Περιγραφή πλάνου</h4></dt>
+    <dt class="col-sm-2"><h4>Κόστος (€)</h4></dt>
+    <hr/>
+    {% for plan in plans %}
+        <dt class="col-sm-5">
+            <label>
+                <input type="radio" name="plan" class="radioplan" class="radiogroup" id="{{ plan['plan'] }}" value="{{ plan['plan'] + ' ' + plan['amount'] }}" required>
+                <img class="billing-img img-blur" src="{{ url_for('static', filename= 'img/' + plan['plan'] + '.png') }}">
+            </label>
+        </dt>
+        <dt class="col-sm-5 align-middle">{{ plan['description'] }}</dt>
+        <dt class="col-sm-2">{{ plan['amount'] }}</dt>
+    {% endfor %}
+    </dl>
+    <div class="form-group">
+        <label for="number">Αριθμός πιστωτικής/χρεωστικής κάρτας</label>
+        <input type="text" class="form-control" id="number" name="number" placeholder="1111222233334444" required>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="year">Χρόνος λήξης</label>
+            <input type="text" class="form-control" id="year" name="year" placeholder="2020" required>
+        </div>
+        <div class="form-group col-md-4">
+            <label for="month">Μήνας λήξης</label>
+            <input type="text" class="form-control" id="month" name="month" placeholder="1" required>
+        </div>
+        <div class="form-group col-md-4">
+            <label for="cvc"><abbr title="τριψήφιος κωδικός στο πίσω μέρος της κάρτας">CVC</label>
+            <input type="text" class="form-control" id="cvc" name="cvc" placeholder="123" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="holder">Όνομα κατόχου κάρτας</label>
+        <input type="text" class="form-control" id="holder" name="holder" placeholder="Όνομα Επίθετο" required>
+    </div>
+    <button type="submit" id="submitPlan" class="btn btn-outline-light btn-lg">Αγορά πλάνου</button>
+</form>
+
+<script>
+    $('.radioplan').change(function(e) {
+        const $this = $(this);
+        $buttontext = $("#submitPlan");
+        $buttontext.html('Αγορά πλάνου (' + $this.val().split(' ')[1] + '€)');
+    });
+</script>
+
+{% endblock %}

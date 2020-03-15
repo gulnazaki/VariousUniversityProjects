@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  
+  <title>NTUA DBMS</title>
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/AdminLTE.min.css')}}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/_all-skins.min.css')}}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap.css')}}">
+
+  <style type="text/css">
+    .buttons {
+      text-align:center;
+    }
+    .buttons:after {
+      content:'';
+      display:inline-block;
+      width:100%;/* generates an extra transparent line */
+    }
+    /* makeup*/
+    .buttons {
+      min-width:45em;
+      padding: 1.2em 1em 0;
+      margin:1em;
+      border-radius:0.25em;
+    }
+
+    img.center {
+    display: block;
+    margin: 0 auto;
+    } 
+
+  </style>
+
+<style>
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    min-width: 250px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+    z-index: 1;
+    width: 100%; 
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #4286f4;
+}
+</style>
+</head>
+
+<body class="hold-transition skin-blue layout-top-nav">
+  <div class="wrapper">
+
+    <header class="main-header">
+      <nav class="navbar navbar-static-top">
+        <div class="container">
+          <div class="navbar-header" >
+            <a href="/" class="navbar-brand"><strong>RENT</strong>oulis</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="content-wrapper"><br />
+      <div class="container">
+        <div class="buttons">
+          <div class="dropdown">
+            <button class="dropbtn btn btn-primary btn-flat">Queries</button>
+            <div class="dropdown-content">
+              <a href="/sql/1">Vehicles Per Type</a>
+              <a href="/sql/2">Our Employees</a>
+              <a href="/sql/3">Days Since Last Service</a>
+              <a href="/sql/4">New Customers (Since 2018)</a>
+              <a href="/sql/5">Cities That Have More Than One Customer</a>
+              <a href="/sql/6">Average Km Per City</a>
+              <a href="/sql/7">Customers That Have Not Paid Yet</a>
+              <a href="/sql/8">Customers That Have Returned Cars With Damages</a>
+              <a href="/sql/9">Upcoming Reservations</a>
+              <a href="/sql/10">Our Best Customers</a>
+              <a href="/sql/11">Stores in Athens</a>
+            </div>
+          </div>
+
+          <div class="dropdown">
+            <button class="dropbtn btn btn-primary btn-flat">Tables</button>
+            <div class="dropdown-content">
+              <a href="/tables/employee">Employee</a>
+              <a href="/tables/works">Works</a>
+              <a href="/tables/store">Store</a>
+              <a href="/tables/vehicle">Vehicle</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <img src="http://icons.iconarchive.com/icons/graphicloads/100-flat-2/256/car-icon.png" class="center">
+
+      <div class="container">  
+        <div class="buttons">
+          <a href="/rent/">
+              <option type="button" class="btn btn-primary btn-flat">
+                <span class="glyphicon"></span> Rent a Car
+              </option>
+          </a>
+
+          <a href="/reserve/">
+            <option type="button" class="btn btn-primary btn-flat">
+              <span class="glyphicon"></span> Reserve a Car
+            </option>
+          </a>
+
+          <a href="/customer/">
+              <option type="button" class="btn btn-primary btn-flat">
+                <span class="glyphicon"></span> View Customers
+              </option>
+          </a>
+
+          <br />
+          <br />
+
+          <a href="/v">
+              <option type="button" class="btn btn-primary btn-flat">
+                <span class="glyphicon"></span> NU View
+              </option>
+          </a>
+
+          <a href="/v2">
+              <option type="button" class="btn btn-primary btn-flat">
+                <span class="glyphicon"></span> U View
+              </option>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <footer class="main-footer">
+      <div class="container">
+        <div class="pull-right hidden-xs">
+          <b>NTUA</b> BDMS
+        </div>
+      </div>
+    </footer>
+  </div>
+  
+
+  <script src="{{ url_for('static', filename='js/jquery-2.2.3.min.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/app.min.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/dataTables.bootstrap.min.js')}}"></script>
+
+</body>
+</html>

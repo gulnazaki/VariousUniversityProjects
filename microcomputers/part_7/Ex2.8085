@@ -1,0 +1,57 @@
+		IN 10H			; disable memory protection
+		MVI A,0DH		; interrupt mask value(RST6.5) in accumulator
+		SIM			; set interrupt mask
+		LXI B,0064H		; delay value set to 64H = 100 msec
+		MVI D,FFH		; initialise 0.1sec counter(negative logic)
+		LXI H,0900H		; memory address 0900H loaded
+		MVI M,00H		; initialise interrupts counter(first LED) to 0
+		INX H			; disable all other (5) LEDs
+		MVI M,10H
+		INX H
+		MVI M,10H
+		INX H
+		MVI M,10H
+		INX H
+		MVI M,10H
+		INX H
+		MVI M,10H
+MAIN:
+		DI			; disable interrupts by default
+		MVI L,00H		; intr_flag = don't serve(0)
+		LDA 2000H		; load switch state
+		RRC			; check if LSB is ON
+		JNC NO_INTERRUPTS	; if LSB is ON this branch is not taken
+		EI			; enable interrupts
+		MVI L,01H		; intr_flag = serve(1)
+NO_INTERRUPTS:
+		MOV A,D		; A <- D
+		SUI 10H		; -1 from 4 MSBs = +1 in negative logic
+		STA 3000H		; update LEDs
+		DI
+		CALL DELB		; wait 0.1sec
+		EI
+		MOV D,A		; update counter (overflow works as a reset)
+		PUSH D			; push D-E in stack
+		LXI D,0900H		; first LED is in this memory address
+		CALL STDM		; print in 7-segment display
+		CALL DCD
+		POP D			; pop from stack
+		JMP MAIN		; loop
+
+
+INTR_ROUTINE:
+		PUSH PSW		; save accumulator and flags
+		MOV A,L
+		RRC
+		JNC DON'T_RESET	; if intr_flag = 0, reject interrupt
+		LXI H,0900H		; memory address 0900H loaded
+		INR M			; increase interrupt counter
+		MOV A,M		; A <- M
+		CPI 10H		; mod16
+		JC DON'T_RESET
+		MVI M,00H
+DON'T_RESET:
+		POP PSW
+		EI
+		RET
+END

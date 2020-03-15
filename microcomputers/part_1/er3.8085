@@ -1,0 +1,34 @@
+	LDA 2000H	; read switches
+	CPI 64H		; <?100
+	JNC DEL_SET	
+	MVI B,FFH
+DECA:
+	INR B
+	SUI 0AH
+	JNC DECA
+	ADI 0AH		; shift acc
+	RLC		; left by 4 bits
+	RLC
+	RLC
+	RLC
+	ADD B		; acc+=B
+	RLC		; rotate back
+	RLC
+	RLC
+	RLC
+	CMA		; get complement
+	STA 3000H	; set LEDs
+	HLT		; halt
+DEL_SET:
+	MVI B,01H	; set delay
+	MVI C,F4H
+BLINK:
+	MVI A,F0H	; for >100
+	STA 3000H	; blink LEDs
+	CALL DELB
+	MVI A,0FH
+	STA 3000H
+	CALL DELB
+	JMP BLINK
+	HLT
+	END

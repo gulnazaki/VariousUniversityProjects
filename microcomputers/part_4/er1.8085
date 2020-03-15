@@ -1,0 +1,63 @@
+	IN 10H 			;Disable memory protection
+	MVI A,0DH 		;Mask interrupts to only detect RST 6.5
+	SIM 			;Set interrupt mask
+	MVI B,40H 		;Set B,C pair to 1000ms delay 03e8
+	MVI C,25H 		;for use with DELB subroutine
+	MVI A,10H 		;Used to turn off unwanted parts of display
+	STA 0A00H  		;Turn off 4 left-most digits
+	STA 0A01H 		;of 7-segment display
+	STA 0A02H
+	STA 0A03H
+	MVI H,06H
+	MVI L,00H
+	LXI D,0A00H 		;Message address
+	EI 			;Enable interrupts
+TURN_OFF:
+	MVI A,FFH 		;Turn off all LEDs
+	STA 3000H 		;Update LEDs
+	LDA 0AFDH
+WAIT:
+	JMP WAIT		;Loop until interrupt is received
+CLK1:
+	MOV A,H 		;Store first digit
+	STA 0A05H 		
+	MOV A,L 		;Store second digit
+	STA 0A04H
+	PUSH H
+	MVI A,28H
+	STA 0A06H
+	JMP DISP_25FPS	
+DECR_COUNT:
+	POP H
+	MOV A,L
+	CPI 00H 		;Check if second digit 0	
+	JZ DEC_FIRST		;If yes, decrease first digit
+	DCR L
+	JMP CLK1
+DEC_FIRST:
+	MOV A,H
+	CPI 00H
+	JZ TURN_OFF		;Turn LEDs off if 0 has been reached
+	DCR H 			;(First digit)--
+	MVI L,09H 		;Set second digit 9
+	JMP CLK1
+INTR_ROUTINE:
+	POP H 			;Pop saved PC
+	MVI A,00H
+	STA 3000H   		;Turn on all LEDs
+	MVI H,06H 		;Set H,L to 60D. Used as seconds counter
+	MVI L,00H
+	EI 			;Re-enable interrupts
+	JMP CLK1
+DISP_25FPS:		
+	LXI D,0A00H
+	CALL STDM
+	CALL DCD 		;Display message
+	LXI B,0019H
+	CALL DELB		;Delay 25ms
+	LDA 0A06H
+	DCR A
+	JZ DECR_COUNT	
+	STA 0A06H
+	JMP DISP_25FPS
+	END

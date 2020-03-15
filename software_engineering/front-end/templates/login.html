@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+{% if username %}
+    <span class="text-center">
+        <h3>Είστε ήδη συνδεδεμένος/-η ως <strong>{{ username }}</strong></h3>
+        <hr/>
+        <h5>Πατήστε <a href="{{ url_for('index') }}">εδώ</a> για να επιστρέψετε στην αρχική σελίδα της electra.</h5>
+        <h5>Πατήστε <a href="{{ url_for('logout') }}">εδώ</a> για να αποσυνδεθείτε.</h5>
+    </span>
+{% else %}
+    <form class="was-validated" method="post" action="">
+        <div class="form-group">
+            <label for="username">Όνομα χρήστη:</label>
+            <input type="text" class="form-control" id="username" placeholder="Συμπληρώστε το όνομα χρήστη" name="username" required>
+            <div class="invalid-feedback">Υποχρεωτικό πεδίο</div>
+        </div>
+        <div class="form-group">
+            <label for="password">Κωδικός πρόσβασης:</label>
+            <input type="password" class="form-control" id="pwd" placeholder="Συμπληρώστε τον κωδικό πρόσβασης" name="password" required>
+            <div class="invalid-feedback">Υποχρεωτικό πεδίο</div>
+        </div>
+        <button type="submit" class="btn btn-outline-light btn-lg">Σύνδεση</button>
+    </form> 
+{% endif %}
+{% endblock %}

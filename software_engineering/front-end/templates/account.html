@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>
+    Χρήστης <strong style="color: rgba(250, 100, 100, 0.8);">{{ account['username'] }}</strong><br>
+    <small class="text-muted">Στοιχεία Λογαριασμού</small>
+</h1><hr>
+
+<dl class="row">
+    {% for k, v in account.items() %}
+        {% if k != 'username' %}
+            <dt class="col-sm-3">{{ k }}</dt>
+            <dd class="col-sm-9">{{ v }}</dd>
+        {% endif %}
+    {% endfor %}
+</dl>
+{% endblock %}

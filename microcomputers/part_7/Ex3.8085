@@ -1,0 +1,58 @@
+		IN 10H			; disable memory protection
+INITIALISE:
+		LXI H,0900H		; initial address of data to be printed
+		MVI M,10H		; 1st 7-segment is blank
+		INX H
+		MVI M,10H		; so is the 2nd
+		INX H
+		MVI M,10H		; and the 3rd
+READ_FIRST:
+		CALL KIND		; read keyboard for first input
+		CPI 10H		; if input > 0FH, then invalid, so
+		JNC READ_FIRST	; try to read it again
+		MOV B,A		; else, store input x in B
+READ_SECOND:
+		CALL KIND		; read keyboard for second input
+		CPI 10H		; same as before
+		JNC READ_SECOND
+		MOV C,A		; store input y in C
+MAKE_OUTPUT:
+		MOV A,B		; move x to A
+		RLC			; A = 2x
+		RLC			; A = 4x
+		RLC			; A = 8x
+		RLC			; A = 16x
+		ADD C			; A = 16x + y (our output)
+		MVI C,00H		; counter = 0
+		LXI H,0905H		; set addr to store output digits
+COUNT_HUNDREDS:
+		CPI 64H		; if A < 100, done with hundreds
+		JC HUNDREDS_DONE
+		SUI 64H		; else A -= 100
+		INR C			; and counter++
+		JMP COUNT_HUNDREDS	; repeat
+HUNDREDS_DONE:
+		CALL UPDATE_STORED_OUTPUT
+COUNT_DECS:				; the same as before, with decs
+		CPI 0AH
+		JC DECS_DONE
+		SUI 0AH
+		INR C
+		JMP COUNT_DECS
+DECS_DONE:
+		CALL UPDATE_STORED_OUTPUT
+		MOV C,A		; store units in C
+		CALL UPDATE_STORED_OUTPUT
+PRINT:
+		LXI D,0900H		; store address of output in D
+		CALL STDM
+		CALL DCD
+		JMP READ_FIRST	; looping forever
+
+
+UPDATE_STORED_OUTPUT:
+		MOV M,C		; store hundreds/decs/units
+		DCX H			; point to next digit
+		MVI C,00H		; reset counter
+		RET
+END

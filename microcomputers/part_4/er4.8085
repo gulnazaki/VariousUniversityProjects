@@ -1,0 +1,40 @@
+	IN 10H 		;Disable memory protection
+	LXI H,0000H 	;Initialize sum = 0
+	MVI B,40H 	;Data counter = 64
+	MVI A,0EH 	;Enable RST 5.5
+	SIM
+	EI 		;Enable interrupts
+WAIT_IN:
+	JMP WAIT_IN 	;Wait for input
+INT_ROUTINE:
+	POP H 		;Pop PC from stack
+	MOV A,B
+	CPI 00H 	;Compare data counter with 0
+	JZ FINISH1	;End program if data count = 0
+	DCR B 		;data count--
+	RRC 		;Check if counter is odd --> reading MSBs
+	JC READ_MSB
+	LDA 2000H 	;Load from PORT_IN
+	MVI D,00H 	;Set temp MSBs = 0, D,E used as temp 16-bit register
+	MOV A,E 	;Set temp LSBs
+	DAD D 		;Add MSBs to sum
+	EI 		;Re-enable interrupts
+	JMP WAIT_IN 	;Wait for MSBs
+READ_MSB:
+	LDA 2000H 	;Load from PORT_IN
+	MVI D,00H 	;Set temp MSBs = 0
+	RLC 		;Shift left to match
+	RLC 		;MSB position
+	RLC
+	RLC
+	ANI F0 		;Only keep 4 MSBs
+	MOV E,A 	;Set temp LSBs
+	DAD D 		;Add temp to H,L pair
+	EI 		;Re-enable interrupts
+	JMP WAIT_IN 	;Wait for LSBs
+FINISH1:
+	DAD H 		;Shift H,L pair left
+	DAD H 		;by 3 positions
+	DAD H 		;Result is stored in H
+	HLT
+	END

@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<img src="{{ url_for('static', filename='img/logo_transparent_black.png') }}" class="img-fluid" alt="electra logo">
+<span class="text-center">
+    <h1>Καλωσήρθατε στην ιστοσελίδα της <kbd><strong>electra</strong></kbd></h1>
+    <hr/><hr/>
+    <h5>Στην electra, κύριος στόχος μας είναι η συνεχής και αξιόπιστη παροχή των ανοιχτών δεδομένων (Open Data) που σχετίζονται με την ευρωπαϊκή αγορά ηλεκτρικής ενέργειας</h5>
+    <hr/><hr/>
+    <h5>Εάν επιθυμείτε να χρησιμοποιήσετε <strong>δωρεάν</strong> τις υπηρεσίες μας, σας καλούμε να <a href="{{ url_for('contact') }}">επικοινωνείσετε με κάποιον διαχειριστή</a></h5>
+    <hr/><hr/>
+    <h5>Εάν έχετε ήδη κάποιον λογαριασμό, είστε έτοιμοι <a href="{{ url_for('data') }}">να ξεκινήσετε την περιήγησή σας!</a></h5>
+</span>
+
+{% endblock %}

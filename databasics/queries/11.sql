@@ -1,0 +1,1 @@
+select Street, StreetNo, PhoneNumber, Email from store where City = 'Athens';

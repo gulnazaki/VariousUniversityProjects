@@ -1,0 +1,215 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h1>
+    {{ dataset_descr }}<br>
+    {% if dataset != 'AggregatedGenerationPerType' or alltypes %}
+    <small class="text-muted">{{ data[0].AreaName }}, {{ res }}</small>
+    {% else %}
+    <small class="text-muted">{{ data[0].AreaName }}, {{ res }}, {{ data[0].ProductionType }}</small>
+    {% endif %}
+</h1><hr>
+
+<br><br>
+{% if alltypes %}
+    <canvas id="barChart"></canvas>
+    <br><br>
+    <canvas id="pieChart"></canvas>
+{% else %}
+    <canvas id="lineChart"></canvas>
+{% endif %}
+
+<script type="text/javascript">
+
+    // parse data
+    var data = {{ data|tojson|safe }};
+    var datetype = {{ datetype|tojson|safe }};
+    var dataset = {{ dataset|tojson|safe }};
+    var dataset_descr = {{ dataset_descr|tojson|safe }};
+
+    labels = [];
+    values = [];
+    values_ = [];
+
+    x_title = { 'date' : 'Ώρα', 'month' : 'Ημέρα', 'year' : 'Μήνας' };
+
+    // parse data in case of all production types query
+    {% if alltypes %}
+        var prodvals = {{ prodtypes|tojson|safe }};
+        prod_values = {};
+        for (var i = 0; i < prodvals.length; i++) {
+            prod_values[prodvals[i]] = [];
+        }
+    {% endif %}
+
+    for (var i = 0; i < data.length; i++) {
+
+        // read time labels
+        var d = (datetype == 'month') ? (data[i].Day.toString() + '-') : ('');
+        var m = data[i].Month.toString() + '-';
+        var y = data[i].Year.toString();
+        var time = (datetype == 'date') ? (data[i].DateTimeUTC) : (d + m + y);
+        labels.push(time);
+
+        // read values
+        var load;
+        if (dataset == 'ActualTotalLoad' || dataset == 'ActualvsForecast') {
+            load = (function(dt) {
+                switch(dt) {
+                    case 'date':    return data[i].ActualTotalLoadValue.toFixed(2);
+                    case 'month':   return data[i].ActualTotalLoadByDayValue.toFixed(2);
+                    case 'year':    return data[i].ActualTotalLoadByMonthValue.toFixed(2);
+                }
+            }) (datetype);
+            values.push(load);
+        }
+        if (dataset == 'AggregatedGenerationPerType') {
+            load = (function(dt) {
+                switch(dt) {
+                    case 'date':    return data[i].ActualGenerationOutputValue.toFixed(2);
+                    case 'month':   return data[i].ActualGenerationOutputByDayValue.toFixed(2);
+                    case 'year':    return data[i].ActualGenerationOutputByMonthValue.toFixed(2);
+                }
+            }) (datetype);
+            values.push(load);
+            {% if alltypes %}
+                prod_values[data[i].ProductionType].push(load);
+            {% endif %}
+        }
+        if (dataset == 'DayAheadTotalLoadForecast') {
+            load = (function(dt) {
+                switch(dt) {
+                    case 'date':    return data[i].DayAheadTotalLoadForecastValue.toFixed(2);
+                    case 'month':   return data[i].DayAheadTotalLoadForecastByDayValue.toFixed(2);
+                    case 'year':    return data[i].DayAheadTotalLoadForecastByMonthValue.toFixed(2);
+                }
+            }) (datetype);
+            values.push(load);
+        }
+        if (dataset == 'ActualvsForecast') {
+            var load_ = (function(dt) {
+                switch(dt) {
+                    case 'date':    return data[i].DayAheadTotalLoadForecastValue.toFixed(2);
+                    case 'month':   return data[i].DayAheadTotalLoadForecastByDayValue.toFixed(2);
+                    case 'year':    return data[i].DayAheadTotalLoadForecastByMonthValue.toFixed(2);
+                }
+            }) (datetype);
+            values_.push(load_);
+            dataset_descr = 'Actual Total Load';
+            var dataset_descr_ = 'Day Ahead Total LoadForecast';
+        }
+    }
+
+    {% if alltypes %}
+        // get context
+        var ctxB = document.getElementById("barChart").getContext('2d');
+        var ctxP = document.getElementById("pieChart").getContext('2d');
+
+        // define colors
+        var colorArray = ['#e784a8','#eb9d45','#bb9a3e','#f6e455','#c8dbdf','#a146aa','#d74d4c','#a65d35','#8fcb62','#35884e','#a0abb1','#962f2c','#682d2c','#85dfeb','#339ca3','#1b4c5a','#5e6a82','#191023','#72adee','#435edb','#474394','#f4f5ef','#f8c7a4','#322d4d'];
+
+        // define dataset for bar chart
+        var uniqueLabels = Array.from(new Set(labels))
+        datasets = [];
+        for (var i = 0; i < prodvals.length; i++) {
+            datasets.push({label: prodvals[i], backgroundColor: colorArray[i], data: prod_values[prodvals[i]]});
+        }
+
+        // create bar chart
+        var myBarChart = new Chart(ctxB, {
+            type: 'bar',
+            data: { labels: uniqueLabels, datasets: datasets },
+            options: {
+                tooltips: { mode: 'index', intersect: false },
+                responsive: true,
+                legend: { display: false },
+                scales: {
+                    xAxes: [ {
+                        stacked: true,
+                        scaleLabel: { display: true, labelString: x_title[datetype], fontColor: 'white'},
+                        ticks: { fontColor: 'white' },
+                    } ],
+                    yAxes: [ {
+                        stacked: true,
+                        scaleLabel: { display: true, labelString: 'Φορτίο (MWh)', fontColor: 'white'},
+                        ticks: { fontColor: 'white' },
+                    } ],
+                } 
+            }
+        });
+
+        // define dataset for pie chart
+        total_vals = [];
+        for (var i = 0; i < prodvals.length; i++) {
+            total_vals.push(prod_values[prodvals[i]].reduce((a, b) => parseFloat(a) + parseFloat(b), 0));
+        }
+        dataset = [{ backgroundColor: colorArray, data: total_vals.map(a => a.toFixed(2)), borderWidth: 0 }];
+
+        // create pie chart
+        var myPieChart = new Chart(ctxP, {
+            type: 'pie',
+            data: { labels: prodvals, datasets: dataset },
+            options: {
+                responsive: true,
+                legend: { position: 'right', labels: { fontColor: 'white' } },
+            }
+        });
+
+    {% else %}
+        // get context
+        var ctxL = document.getElementById("lineChart").getContext('2d');
+
+        // define colors
+        var gradientFill = ctxL.createLinearGradient(0, 0, 0, 250);
+        gradientFill.addColorStop(0, "rgba(250, 100, 100, 0.8)");
+        gradientFill.addColorStop(1, "rgba(250, 100, 100, 0.2)");
+        var gradientFill_ = ctxL.createLinearGradient(0, 0, 0, 250);
+        gradientFill_.addColorStop(0, "rgba(100, 100, 250, 0.8)");
+        gradientFill_.addColorStop(1, "rgba(100, 100, 250, 0.2)");
+
+        // define dataset for line chart
+        datasets = [{
+                    label: dataset_descr + ' (MWh)',
+                    data: values,
+                    backgroundColor: gradientFill,
+                    borderColor: "rgba(250, 100, 100, 0.5)",
+                    borderWidth: 2,
+                    pointBorderColor: "#fff",
+                    pointBackgroundColor: "rgba(256, 256, 256, 0.1)",
+                }];
+        if (dataset == 'ActualvsForecast') {
+            datasets.push({
+                    label: dataset_descr_ + ' (MWh)',
+                    data: values_,
+                    borderColor: "rgba(100, 100, 250, 0.5)",
+                    borderWidth: 2,
+                    pointBorderColor: "#fff",
+                    pointBackgroundColor: "rgba(256, 256, 256, 0.1)",
+                });
+        }
+
+        // create line chart
+        var myLineChart = new Chart(ctxL, {
+            type: 'line',
+            data: { labels: labels, datasets: datasets },
+            options: {
+                responsive: true,
+                legend: { labels: { fontColor: 'white' } },
+                scales: {
+                    yAxes: [ {
+                        scaleLabel: { display: true, labelString: 'Φορτίο (MWh)', fontColor: 'white'},
+                        ticks: { fontColor: 'white' },
+                    } ],
+                    xAxes: [ {
+                        scaleLabel: { display: true, labelString: x_title[datetype], fontColor: 'white'},
+                        ticks: { fontColor: 'white' },
+                    } ],
+                }
+            }
+        });
+
+    {% endif %}
+
+</script>
+
+{% endblock %}

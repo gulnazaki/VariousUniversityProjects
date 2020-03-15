@@ -1,0 +1,16 @@
+RHLL MACRO N
+	PUSH A		; save previous values of accumulator...
+	PUSH B		; ...and register B
+	MVI B,N		; set shift counter
+LOOP:
+	MOV A,L		; A<-L
+	RAL		; rotate accumulator left through carry flag
+	MOV L,A		; L<-A
+	MOV A,H		; A<-H
+	RAL		; rotate accumulator left through carry flag
+	MOV H,A		; H<-A
+	DCR B		; B--
+	JNZ LOOP	; if B>0 repeat
+	POP B		; else...
+	POP A		; ...restore registers
+ENDM

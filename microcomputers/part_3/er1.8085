@@ -1,0 +1,38 @@
+		IN 10H
+MAIN:
+		LDA 2000H				; load switch state
+		CALL FIND_CORRECT_LEDS		; find the leds we should open
+		STA 3000H				; store to leds
+		JMP MAIN
+
+FIND_CORRECT_LEDS:
+		MVI B,00H				; B set to 0
+		RRC					; rotate accumulator right...
+		JC FINALISE				; ...and if C = 1 go to finalization
+		MVI B,01H				; B set to 1
+		RRC
+		JC FINALISE
+		MVI B,03H				; B set to 3
+		RRC
+		JC FINALISE
+		MVI B,07H				; B set to 7
+		RRC
+		JC FINALISE
+		MVI B,0FH				; B set to 15
+		RRC
+		JC FINALISE
+		MVI B,1FH				; B set to 31
+		RRC
+		JC FINALISE
+		MVI B,3FH				; B set to 63
+		RRC
+		JC FINALISE
+		MVI B,7FH				; B set to 127
+		RRC
+		JC FINALISE
+		MVI B,FFH				; if no switch is on, set B to 0 (cmp) and open no led
+FINALISE:
+		MOV A,B					; A<-B
+		RET
+
+		END

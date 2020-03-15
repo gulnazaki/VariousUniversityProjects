@@ -1,0 +1,37 @@
+USE energy_db;
+
+LOAD DATA LOCAL INFILE './referenceTables/MapCode.csv'
+INTO TABLE mapCode
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE './referenceTables/AllocatedEICDetail.csv'
+INTO TABLE allocatedEICDetail
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE './referenceTables/AreaTypeCode.csv'
+INTO TABLE areaTypeCode
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE './referenceTables/ProductionType.csv'
+INTO TABLE productionType
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE './referenceTables/ResolutionCode.csv'
+INTO TABLE resolutionCode
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE './referenceTables/BillingPlan.csv'
+INTO TABLE billingPlan
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;

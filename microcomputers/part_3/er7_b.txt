@@ -1,0 +1,14 @@
+FILL MACRO ADDR,L,K
+	PUSH B 			;Push data onto stack
+	PUSH C
+	MVI B,K 		;Let B = K
+	MVI C,L 		;Let C = L
+	LXI H,ADDR 		;Load address
+STORE:
+	MOV M,B 		;Write B to Memory
+	INX H 			;Move to next memory address
+	DCR C 			;C--
+	JNZ STORE 		;If lengthToGo > 0 repeat
+	POP C 			;Pop data from stack
+	POP B
+ENDM

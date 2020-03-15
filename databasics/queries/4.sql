@@ -1,0 +1,1 @@
+select Lastname, FirstName, FirstRegistration from Customer where FirstRegistration >= '2018-01-01' order by FirstRegistration;

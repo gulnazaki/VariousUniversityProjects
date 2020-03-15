@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>
+    Επικοινωνία<br>
+    <small class="text-muted">e-mails Διαχειριστών</small>
+</h1><hr>
+
+<ul class="list-group list-group-flush">
+    {% for email in admin_emails %}
+        <li class="list-group-item email bg-dark"><a href="mailto:{{ email }}">{{ email }}</a></li>
+        <hr/>
+    {% endfor %}
+</ul>
+{% endblock %}

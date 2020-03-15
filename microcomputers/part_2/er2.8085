@@ -1,0 +1,82 @@
+	IN 10H
+	CALL INIT_ADDR		;Initialize memory address
+WR_TO_MEM:
+	MOV A,E 			;Load counter
+	STAX D 				;Store to memory
+	CPI FFH				;Check if counter > 255
+	INX D	 			;Move to next memory
+	JNZ WR_TO_MEM 		;Loop while counter <= 255
+
+	CALL INIT_ADDR 	 	;Initialize memory address
+	MVI B,00H 			;Initialize (B,C) = 0
+	MVI C,00H
+COUNT_ALL1:
+	LDAX D  			;Load from memory
+	MVI L,00H 			;bit_counter = 0
+	CALL COUNT1_CURR 	;Count 1s in number
+	MOV A,E
+	CPI FFH 			;check if counter > 255
+	INX D 				;Move to next address
+	JNZ COUNT_ALL1 		;Loop while counter < 256
+
+	CALL INIT_ADDR 	 	;Initialize memory address
+	MVI H,00H 			;Initialize H = 0
+COUNT_XN:
+	LDAX D
+	CPI 0FH 			;Is Xn > 0FH?
+	JC NEXT1 			;If not skip number
+	CPI 60H 			;Is Xn <= 60H?
+	JNC NEXT1 			;If not skip number
+	INR H 				;If 10H <= Xn <= 60H, number_counter++
+NEXT1:
+	MOV A,E
+	CPI FFH 			;Is counter < 256?
+	INX D 				;Next number
+	JNZ COUNT_XN 
+	MOV D,H 			;Store counter in D
+
+MAIN1:
+	LDA 2000H 			;Read switches
+	RLC
+	RLC
+	RLC
+	RLC
+	RLC
+	RLC
+	JC PRINT_D 			;If bit 2 is HI print D
+	RLC
+	JC PRINT_C 			;If bit 1 is HI print C
+	RLC
+	JC PRINT_B			;If bit 0 is HI print B
+	MVI A,00H 			;Else print all OFF
+	JMP PRINT
+PRINT_D:
+	MOV A,D
+	JMP PRINT
+PRINT_C:
+	MOV A,C
+	JMP PRINT
+PRINT_B:
+	MOV A,B
+	JMP PRINT
+PRINT:
+	CMA
+	STA 3000H
+	JMP MAIN1 			;Loop check
+
+COUNT1_CURR: 			;Check current number for 1s
+	MOV H,A 			;Backup number
+	MOV A,L
+	CPI 08H
+	RZ 					;Loop 8 times
+	INR L 				;bit_counter++
+	MOV A,H 			;Restore number
+	RLC
+	JNC COUNT1_CURR 	
+	INX B 				;(B,C)++ if 1 is found
+	JMP COUNT1_CURR
+INIT_ADDR:
+	MVI D,09H 			;Set write address...
+	MVI E,00H 			;...to 0900H
+	RET
+END

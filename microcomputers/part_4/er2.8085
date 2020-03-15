@@ -1,0 +1,81 @@
+		IN 10H
+		MVI B,14H		; store K1=14H=20dec to B
+		MVI C,28H		; store K2=28H=40dec to C
+		LXI H,0A02H		; H-L point at 0x0A02 (display 2)
+		MVI M,10H		; we set diplays 2-5 to disabled
+		INX H
+		MVI M,10H
+		INX H
+		MVI M,10H
+		INX H
+		MVI M,10H
+		MVI A,0DH		; set interrupt mask...  
+		SIM				; ...to enable RST 6.5
+		EI				; enable interrupts
+
+JUST_WAIT:
+		JMP JUST_WAIT	; does nothing; waits for interrupt
+
+INTR_ROUTINE:
+		PUSH B 			; push register pair B-C in stack
+		LXI H,0A00H		; H-L point at 0x0A00 (display 0)
+		MVI M,10H		; we set it to disabled (reset in every interrupt)
+		INX H			; H-L point at 0x0A01 (display 1)
+		MVI M,10H		; we set it to disabled (reset in every interrupt)
+		LXI D,0A00H		; D-E point at 0x0A00 (displays)
+		CALL STDM
+		CALL DCD
+READ_LS_HEX:
+		CALL KIND
+		CPI 10H			; checks if button <= 0F; if not repeat
+		JNC READ_LS_HEX
+		LXI H,0A00H		; H-L point at 0x0A00 (display 0)
+		MOV M,A			; store lshex at display 0
+		LXI D,0A00H		; D-E point at 0x0A00 (displays)
+		CALL STDM
+		CALL DCD
+READ_MS_HEX:
+		CALL KIND
+		CPI 10H			; checks if button <= 0F; if not repeat
+		JNC READ_MS_HEX
+		LXI H,0A01H		; H-L point at 0x0A01 (display 1)
+		MOV M,A			; store mshex at display 1
+		LXI D,0A00H		; D-E point at 0x0A00 (displays)
+		PUSH PSW		; push Processor Status Word in stack 
+		CALL STDM
+		CALL DCD
+		POP PSW			; pop Processor Status Word from stack
+COMPARE_AND_OPEN_LED:
+		RLC				; shift A=mshex 4 times
+		RLC
+		RLC
+		RLC
+		LXI H,0A00H		; H-L point at 0x0A00 (display 0)
+		ORA M			; create a single byte hex of our number
+		POP B 			; pop register pair B-C from stack
+		INR B			; B++
+		CMP B			; if number < (B+1) (number<=B) carry=1
+		JC FIRST_LED
+		DCR B			; B--; reset K1
+		INR C			; C++
+		CMP C			; if number < (C+1) (number<=C) carry=1
+		JC SECOND_LED
+		DCR C			; C--; reset K2
+		MVI A,FBH		; A is 3rd led (complemented)
+		JMP OUTPUT
+FIRST_LED:
+		DCR B			; B--; reset K1
+		MVI A,FEH		; A is 1st led (complemented)
+		JMP OUTPUT
+SECOND_LED:
+		DCR C			; C--; reset K2
+		MVI A,FDH		; A is 2nd led (complemented)
+		JMP OUTPUT
+OUTPUT:
+		STA 3000H
+		MVI A,0DH		; set interrupt mask...  
+		SIM				; ...to enable RST 6.5
+		EI				; enable interrupts again
+		RET
+
+		END

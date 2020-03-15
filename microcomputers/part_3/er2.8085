@@ -1,0 +1,35 @@
+		IN 10H
+WAIT_FOR_BUTTON:
+		CALL KIND			; read keyboard
+		CPI 09H			; if button < 9 carry=1
+		JNC WAIT_FOR_BUTTON		; if !carry (button >=9) wait for another button
+		CPI 00H			; if button=0 zero=1
+		JZ WAIT_FOR_BUTTON		; if zero wait for another button
+		CALL CORRESPONDING_LED  
+		STA 3000H           		; stores to led state
+		JMP WAIT_FOR_BUTTON
+
+
+CORRESPONDING_LED:				; finds the led the button points to
+		MVI B,01H			; B<-1
+		CALL FIND_LED			; if 1<=button<=8 find led
+FINALIZE:
+		CMA				; complement accumulator
+		RET
+
+
+FIND_LED:
+		DCR A 				; A--
+		CPI 00H 			; if A=0 zero=1
+		JZ ENDIT
+		MOV C,A				; C<-A
+		MOV A,B 			; A<-B
+		RLC				; shift accumulator left
+		MOV B,A 			; B<-A
+		MOV A,C			; A<-C
+		JMP FIND_LED
+ENDIT:
+		MOV A,B 			; A<-B
+		RET
+
+		END

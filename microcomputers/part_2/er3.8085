@@ -1,0 +1,78 @@
+LOOP1:
+	LDA 2000H		;Read input
+	MVI D,00H		;LED state
+	MVI E,08H		;LED counter
+
+	CALL FIND_AND
+	CNZ SET_LED
+	CALL NEXT_LED
+
+	CALL FIND_AND
+	CNZ SET_LED
+	CALL NEXT_LED
+
+	CALL FIND_OR
+	CNZ SET_LED
+	CALL NEXT_LED
+
+	CALL FIND_OR
+	CNZ SET_LED
+	CALL FIND_XOR
+
+	CNZ SET_LED
+	MOV A,B
+	RRC
+	JNC FINAL		;Check if last bit was set HI...
+	DCR D 			;...and decrement accordingly
+
+FINAL:
+	MOV A,D 		;Load LED state
+	CMA
+	STA 3000H 		;Write LEDs
+	JMP LOOP1
+
+READ_BIT: 			;Read inpup bit Ai/Bi
+	RLC
+	MOV B,A 		;Backup input
+	MVI A,00H
+	ACI 00H			;Acc = Current bit
+	RET
+READ_IN: 			;Read 2 input bits of gate
+	CALL READ_BIT 	;Read Ai
+	MOV C,A 		;C = Ai
+	MOV A,B 		;Restore input
+	CALL READ_BIT	;Read Bi
+	RET
+FIND_AND: 			;Find AND gate output
+	CALL READ_IN
+	ANA C 			;Bi AND Ai
+	RET
+FIND_OR: 			;Find OR gate output
+	CALL READ_IN
+	ORA C 			;Bi OR Ai
+	RET
+FIND_XOR: 			;Find XOR gate output
+	MOV A,D
+	RRC				;Get A0 OR B0
+	MVI A,00H
+	ACI 00H 		;Acc = A0 OR B0
+	MOV B,A 		;B = A0 OR B0
+	MOV A,D 		;Load LED state
+	RRC
+	RRC				;Get A1 OR B1
+	MVI A,00H
+	ACI 00H 		;Acc = A1 OR B1
+	XRA B 			;Find (A0 OR B0) XOR (A1 OR B1)
+	RET
+SET_LED: 			;Turn Xi on by updating LED state register
+	MOV A,D 		;Load LED state
+	ADD E 			;Set LED state bits
+	MOV D,A 		;Update LED state
+	RET
+NEXT_LED: 			;Move to next LED, i.e. X(i+1)
+	MOV A,E 		;Load LED counter
+	RRC 			;Move to next LED
+	MOV E,A 		;Update LED counter
+	MOV A,B 		;Restore input
+	RET
+	END

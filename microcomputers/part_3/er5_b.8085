@@ -1,0 +1,25 @@
+	MVI B,FFH 		;Initialize counter = 255
+	MVI C,FFH 		;Set min = 255, i.e. max possible value
+LOOP_ME:
+	RIM				;Check SID2
+	RLC
+	JNC  			;Wait until SID2 is set
+	MVI A,C0H 		;Set Acc D7,D6
+	SIM 			;Set SOD2
+CHECK:
+	RIM 			;Check SID2
+	RLC
+	JNC CHECK 		;Wait until SID2 is set
+	IN DATA2 		;Read DATA2
+	LDAX DATA2 		;Load DATA2 to Acc
+	MOV M,A 		;Write to Memory
+	INX H 			;Move to next memory address
+	CMP C
+	JNC GO_ON 		;Check if current input < min
+	MOV C,A 		;If so, store current input as min
+GO_ON:
+	MVI A,40H		;Set Acc D6
+	SIM 			;Reset SOD2
+	DCR B 			;Decrement counter
+	JNZ LOOP_ME 	;Loop while counter > 0
+END

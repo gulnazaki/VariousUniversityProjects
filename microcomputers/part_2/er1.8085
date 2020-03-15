@@ -1,0 +1,40 @@
+	MVI B,00H		;Set sampling period...
+	MVI C,C8H		;...T = 200ms
+	MVI D,96H		;Set counter to 150 samples...
+					;For total delay T * counter = 30s
+MAIN:
+	CALL IS_ON		;Check for "on" sequence
+	CALL LED_ON		;If encountered, turn LEDs on
+	JMP MAIN		;Loop
+IS_ON:
+	CALL FIND_0		;Check for OFF state
+	CALL FIND_1		;Check for ON state
+	CALL FIND_0
+	RET
+FIND_0:
+	CALL READ_IN	;Read input switch...
+	JC FIND_0		;...until it is turned OFF
+	RET
+FIND_1:
+	CALL READ_IN	;Read input switch...
+	JNC FIND_1		;...until it is turned ON
+	RET
+READ_IN:	
+	CALL DELB		;Delay T
+	DCR D			;Update counter
+	CZ LED_OFF		;If counter = 0 turn LEDs off
+	LDA 2000H		;Read input switch
+	RLC				;Rotate ACC left to...
+	RET				;...access input MSB
+LED_ON:
+	MVI A,00H		;Let ACC = 0
+	STA 3000H		;Update LEDs
+	MVI D,96H		;Reset counter
+	RET
+LED_OFF:
+	MVI A,FFH		;Let ACC = FF
+	STA 3000H		;Update LEDs
+	MVI D,96H		;Reset counter
+	RET
+
+	END

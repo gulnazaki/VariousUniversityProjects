@@ -1,0 +1,97 @@
+@import "compass/css3";
+
+$base : #f0f0f0;
+$flat: #e74c3c;
+$dark: #1E1E1E;
+
+body{
+	background-color: $dark;
+	font-family: sans-serif;
+}
+
+@mixin size{
+	padding: 13px 30px;
+	width: 200px;
+	vertical-align: middle;
+}
+
+@mixin position{
+	margin-left: -30px;
+}
+
+a{
+	text-decoration: none; 
+	color: inherit;
+}
+
+ul li{
+	list-style: none;
+}
+
+.dropdown{
+	@include size;
+	margin: 0 auto;
+	background-color: $flat;
+	text-align: center;
+}
+
+.dropdown #top{
+	color: $base;
+	position: relative;
+}
+
+.dropdown li ul li:hover{
+	color: $base;
+	background-color: darken($flat, 5%);
+	@include size;
+	@include position;
+}
+
+.dropdown li ul li{
+	@include size;
+	@include position;
+	color: $dark;
+	border-bottom: 1px solid darken($base, 5%);
+}
+
+.dropdown li ul li:first-child{
+margin-top: -13px;
+}
+
+.dropdown li .dropdown-box{
+	height: 0;
+	overflow: hidden;
+    display: none;
+    background-color: $base;
+    width: 100%;
+    @include position;
+    margin-bottom: -15px;
+    margin-top: 13px;
+    border-top: 20px solid $dark;
+    padding: 0;
+    @include size;
+}
+
+.dropdown li:hover .dropdown-box, .dropdown li:active .dropdown-box {
+	display:block;
+	background-color: $base;
+	animation: box 2s ease;
+	animation-iteration-count: 1;
+	animation-fill-mode: forwards;
+}
+
+@keyframes box {
+  from {height: 0;}
+  to {height: 203px;}
+}
+
+.dropdown li:hover span{
+	width: 0;
+	height: 0;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-bottom: 10px solid $base;
+	margin-top: 42px;
+	position: absolute;
+	margin-left: -40px;
+	}

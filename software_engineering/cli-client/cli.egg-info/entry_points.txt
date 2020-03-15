@@ -1,0 +1,3 @@
+[console_scripts]
+energy_group30 = cli:cli
+

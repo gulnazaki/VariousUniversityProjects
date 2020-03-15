@@ -1,0 +1,60 @@
+		MVI A,0DH		; create mask for interrupts
+		SIM			; apply mask
+		LXI B,01F4H		; delay value set to 1F4H = 500 msec
+		MVI A,FEH		; prepare acc for LSB LED
+		MVI E,00H		; E will be a flag, 0 = left, 1 = right
+		MVI L,01H		; set INTR FLAG
+		EI			; enable interrupts
+		STA 3000H
+		DI
+		CALL DELB
+WAGON_CONTROL:
+		DI			; disable interrupts
+		PUSH PSW		; we need to remember current A for LEDs
+		MVI L,00H		; INTR FLAG = don' serve (0)
+WAIT:
+		LDA 2000H		; read switches
+		RAR			; LSB switch in CY
+		JNC WAIT		; if LSB switch = OFF, wait until ON
+		POP PSW		; restore A
+		EI			; re-enable interrupts
+		MVI L,01H		; INTR FLAG = serve (1)
+		CPI 7FH		; if we reached leftmost (MSB) LED...
+		JZ RIGHT		; ...move to the right
+		CPI FEH		; if we reached rightmost (LSB) LED...
+		JZ LEFT		; ...move to the left
+		DCR E			; if E was 1 (right), then...
+		JZ RIGHT		; ...go right, else go left
+LEFT:
+		MVI E,00H		; FLAG = move left
+		RLC
+		STA 3000H		; switch on the proper LED
+		DI
+		CALL DELB		; wait 0.5 sec
+		EI
+		JMP WAGON_CONTROL	; go on
+RIGHT:					; the same, for the opposite direction
+		MVI E,01H		; FLAG = move right
+		RRC
+		STA 3000H
+		DI
+		CALL DELB
+		EI
+		JMP WAGON_CONTROL
+
+
+INTR_ROUTINE:				; our job is to switch E and return
+		PUSH PSW
+		MOV A,L		; move INTR FLAG to A
+		CPI 00H		; if INTR FLAG == 0...
+		JZ INTR_DONE		; ...don't serve intr
+		MOV A,E		; else, serve it
+		XRI 01H
+		MOV E,A
+INTR_DONE:
+		POP PSW
+		POP H			; get rid of source PC
+		MVI L,01H
+		EI
+		JMP WAGON_CONTROL
+END

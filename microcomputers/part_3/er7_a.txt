@@ -1,0 +1,16 @@
+SWAP_NIBLE MACRO Q
+	PUSH A		; save accumulator's previous value
+	MOV A,Q		; A<-Q
+	RRC		; rotate accumulator 4 bits to swap HEX digits
+	RRC
+	RRC
+	RRC
+	MOV Q,A		; Q<-A
+	MOV A,M		; A<-memory
+	RRC		; rotate accumulator 4 bits to swap HEX digits
+	RRC
+	RRC
+	RRC
+	MOV M,A		; memory<-A
+	POP A		; restore A
+ENDM

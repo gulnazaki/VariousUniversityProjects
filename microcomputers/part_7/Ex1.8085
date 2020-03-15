@@ -1,0 +1,54 @@
+		LXI B,03E8H		; delay value set to 3E8H = 1000 msec
+		CALL CHECK		; read input
+START:
+		MVI A,00H		; initialize counter
+UP:
+		DCR A			; increase A (negative logic)
+		STA 3000H		; print A to LEDs
+		CALL DELB		; 1 sec delay
+		CALL CHECK		; check for changes in switches positions
+		JC START		; if D has changed (CY=1) start counting from 0
+		CMP D			; compare A to max value
+		JNZ UP			; if A!=D, continue else start counting down
+DOWN:
+		INR A			; decrease A (negative logic)
+		STA 3000H		; print A to LEDs
+		CALL DELB		; 1 sec delay
+		CALL CHECK		; check for changes in switches positions
+		JC START		; if D has changed (CY=1) start counting from 0
+		CPI FFH		; compare A to 0
+		JNZ DOWN		; if A!=0 continue
+		JMP UP			; else start counting up
+
+
+; routine that reads input from switches, waits until LSB is ON
+; and stores value of four MSB in D (flag CY is set to 1 if D changes)
+CHECK:
+		MOV E,A		; save A
+WAIT:
+		LDA 2000H		; read input from switches
+		RRC			; rotate right to check LSB
+		JNC WAIT		; if LSB=0, wait
+		RLC			; if LSB=1, start rotating again
+		ANI F0H		; only keep the 4 switches on the left
+		CPI 00H		; check if they are OFF
+		JNZ SKIP1
+		MVI A,FFH		; if they are all OFF (count to 0),
+		MVI E,FFH		; turn off the LEDs and wait
+		STA 3000H
+		JMP WAIT
+SKIP1:
+		RLC			; rotate left 4 times (xxxx0000->0000xxxx)
+		RLC
+		RLC
+		RLC
+		CMA			; complement (negative logic)
+		CMP D			; compare A to D
+		STC			; if A!=D (change in left switches) CY=1
+		JNZ SKIP2
+		CMC			; if A=D (no change in left switches) CY=0
+SKIP2:	
+		MOV D,A		; store counter max value in D
+		MOV A,E		; retrieve A
+		RET
+END

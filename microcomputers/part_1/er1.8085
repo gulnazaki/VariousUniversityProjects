@@ -1,0 +1,13 @@
+LOOP2:	MVI C,08H    ; 0x08->C
+	LDA 2000H    ; data(0x2000)->A
+LOOP1:	RAL          ; rotate accumulator&CF left
+	JC EXIT      ; if (CF=1) goto 0x080D (EXIT)
+	DCR C        ; C--
+	JNZ LOOP1    ; if (ZF=0(meaning C!=0)) goto 0x0805 (LOOP1)
+EXIT:	MOV A,C      ; C->A
+	CMA          ; complement A (1->0...)
+	STA 3000H    ; A->adr(0x3000)
+	JMP LOOP2
+	RST 1        ; shit stops
+
+	END

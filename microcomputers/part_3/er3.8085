@@ -1,0 +1,89 @@
+		IN 10H
+		MVI A,FEH			; A<-11111110 (first port)
+READ_BUTTON:
+		STA 2800H			; choose port
+		MOV B,A			; B<-A (port)
+		LDA 1800H			; read from port
+		MVI C,07H			; keep only the...
+		ANA C				; ...3 LSB
+		CPI 07H			; if port == 111(no button pressed) then zero=1
+		JNZ BUTTON_PRESSED
+		MOV A,B			; A<-B (port)
+		RLC				; choose next port
+		JMP READ_BUTTON
+BUTTON_PRESSED:
+		MOV C,A			; C<-A (column)
+		MOV A,B			; A<-B (port)
+		CPI FBH			; compare port to the row containing '0'
+		JC ONE_TO_F			; if ports contain 1-F buttons
+		JZ ROW_3			; if 3rd row
+		RRC
+		JC ROW_2
+		
+ROW_1:
+		MOV A,C			; A<-C (column)
+		MVI B,06H			; B<-06
+		MVI C,08H			; C<-08
+		RRC
+		JNC DISPLAY_BUTTON
+		DCR B
+		JMP DISPLAY_BUTTON
+		
+ROW_2:
+		MOV A,C			; A<-C (column)
+		MVI B,04H			; B<-04
+		MVI C,08H			; C<-08
+		RRC
+		JNC DISPLAY_BUTTON
+		MVI B,00H			; B<-00
+		RRC
+		JNC DISPLAY_BUTTON
+		INR B
+		INR B
+		JMP DISPLAY_BUTTON
+
+ROW_3:
+		MOV A,C			; A<-C (column)
+		MVI B,00H			; B<-00
+		MVI C,00H			; C<-00
+		RRC
+		JNC DISPLAY_BUTTON
+		MVI B,03H			; B<-03
+		MVI C,08H			; C<-08
+		RRC
+		JNC DISPLAY_BUTTON
+		DCR B
+		DCR B
+		JMP DISPLAY_BUTTON
+			
+ONE_TO_F:
+		MVI B,0DH			; B<-0D
+LOOP1:
+		RLC
+		JNC FOUND_ROW			; if active port is found
+		DCR B				; if not...
+		DCR B				; ... B =
+		DCR B				; ... B - 3
+		JMP LOOP1
+
+FOUND_ROW:
+		MOV A,C			; A<-C (column)
+		MVI C,00H			; C<-00 (first digit)
+LOOP2:
+		RRC
+		JNC DISPLAY_BUTTON		; if button is found
+		INR B				; B++
+		JMP LOOP2
+
+DISPLAY_BUTTON:
+		LXI D,0A00H			; "display address"
+		LXI H,0A04H			; store digits
+		MOV M,B			; lsb digit (B)
+		INR L				; next digit
+		MOV M,C			; msb digit (C)
+		CALL STDM
+		CALL DCD
+		MVI A,FEH			; A<-11111110 (first port)
+		JMP READ_BUTTON
+		
+		END

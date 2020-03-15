@@ -1,0 +1,21 @@
+	MVI B,FFH 		;Counter = 255
+LOOP_ME:
+	MOV A,M 		;Move from memory to Acc
+	INX H 			;Move to next memory address
+	STA DATA1		;Write Acc to DATA1
+	MVI A,C0H		;Set Acc D7, D6
+	SIM				;Set SOD1
+CHECK_HI:
+	RIM 			;Check SID1
+	RLC
+	JNC CHECK_HI 	;Wait until MSB is set
+	OUT DATA1 		;Output data if MSB is set
+	MVI A,40H 		;Set Acc D6
+	SIM 			;Send LO through SOD1
+CHECK_LO:
+	RIM 			;Check SID1
+	RLC
+	JC CHECK_LO		;Wait until SID1 reset
+	DCR B 			;Decrement counter
+	JNZ LOOP_ME 	;Repeat until Counter == 0
+END

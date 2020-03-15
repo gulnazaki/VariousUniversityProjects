@@ -1,0 +1,175 @@
+		IN 10H
+		MVI A,FEH			; A<-11111110 (first port)
+READ_BUTTON:
+		STA 2800H			; choose port
+		MOV B,A			; B<-A (port)
+		LDA 1800H			; read from port
+		MVI C,07H			; keep only the...
+		ANA C				; ...3 LSB
+		CPI 07H			; if port == 111(no button pressed) then zero=1
+		JNZ BUTTON_PRESSED
+		MOV A,B			; A<-B (port)
+		RLC				; choose next port
+		JMP READ_BUTTON
+BUTTON_PRESSED:
+		MOV C,A			; C<-A (column)
+		MOV A,B			; A<-B (port)
+		CPI FBH			; compare port to the row containing '0'
+		JC ONE_TO_F			; if ports contain 1-F buttons
+		JZ ROW_3			; if 3rd row
+		RRC
+		JC ROW_2
+		
+ROW_1:
+		MOV A,C			; A<-C (column)
+		MVI B,06H			; B<-06
+		MVI C,08H			; C<-08
+		RRC
+		JNC DISPLAY_BUTTON
+		DCR B
+		JMP DISPLAY_BUTTON
+		
+ROW_2:
+		MOV A,C			; A<-C (column)
+		MVI B,04H			; B<-04
+		MVI C,08H			; C<-08
+		RRC
+		JNC DISPLAY_BUTTON
+		MVI B,00H			; B<-00
+		RRC
+		JNC DISPLAY_BUTTON
+		INR B
+		INR B
+		JMP DISPLAY_BUTTON
+
+ROW_3:
+		MOV A,C			; A<-C (column)
+		MVI B,00H			; B<-00
+		MVI C,00H			; C<-00
+		RRC
+		JNC DISPLAY_BUTTON
+		MVI B,03H			; B<-03
+		MVI C,08H			; C<-08
+		RRC
+		JNC DISPLAY_BUTTON
+		DCR B
+		DCR B
+		JMP DISPLAY_BUTTON
+			
+ONE_TO_F:
+		MVI B,0DH			; B<-0D
+LOOP1:
+		RLC
+		JNC FOUND_ROW			; if active port is found
+		DCR B				; if not...
+		DCR B				; ... B =
+		DCR B				; ... B - 3
+		JMP LOOP1
+
+FOUND_ROW:
+		MOV A,C			; A<-C (column)
+		MVI C,00H			; C<-00 (first digit)
+LOOP2:
+		RRC
+		JNC DISPLAY_BUTTON		; if button is found
+		INR B				; B++
+		JMP LOOP2
+
+DISPLAY_BUTTON:
+		MVI A,20H			; msb written to 1st display
+		STA 2800H
+		MOV A,C
+		CALL MATCH_DISPLAY		; match digit to display
+		STA 3800H
+		MVI A,10H			; lsb written to 2nd display
+		STA 2800H
+		MOV A,B
+		CALL MATCH_DISPLAY		; match digit to display
+		STA 3800H
+		MVI A,FFH			; reset display
+		STA 3800H
+		MVI A,FEH			; A<-11111110 (first port)
+		JMP READ_BUTTON
+		
+
+MATCH_DISPLAY:
+		CPI 00H			; if 0...
+		JNZ C_ONE
+		MVI A,C0H
+		RET
+C_ONE:
+		CPI 01H			; if 1...
+		JNZ C_TWO
+		MVI A,F9H
+		RET
+C_TWO:
+		CPI 02H			; if 2...
+		JNZ C_THREE
+		MVI A,A4H
+		RET
+C_THREE:
+		CPI 03H			; if 3...
+		JNZ C_FOUR
+		MVI A,B0H
+		RET
+C_FOUR:
+		CPI 04H			; if 4...
+		JNZ C_FIVE
+		MVI A,99H
+		RET
+C_FIVE:
+		CPI 05H			; if 5...
+		JNZ C_SIX
+		MVI A,92H
+		RET
+C_SIX:
+		CPI 06H			; if 6...
+		JNZ C_SEVEN
+		MVI A,82H
+		RET
+C_SEVEN:
+		CPI 07H			; if 7...
+		JNZ C_EIGHT
+		MVI A,F8H
+		RET
+C_EIGHT:
+		CPI 08H			; if 8...
+		JNZ C_NINE
+		MVI A,80H
+		RET
+C_NINE:
+		CPI 09H			; if 9...
+		JNZ C_A
+		MVI A,90H
+		RET
+C_A:
+		CPI 0AH			; if A...
+		JNZ C_B
+		MVI A,88H
+		RET
+C_B:
+		CPI 0BH			; if B...
+		JNZ C_C
+		MVI A,83H
+		RET
+C_C:
+		CPI 0CH			; if C...
+		JNZ C_D
+		MVI A,A7H
+		RET
+C_D:
+		CPI 0DH			; if D...
+		JNZ C_E
+		MVI A,A1H
+		RET
+C_E:
+		CPI 0EH			; if E...
+		JNZ C_F
+		MVI A,86H
+		RET
+C_F:
+		MVI A,8EH			; is F
+		RET
+
+
+		END

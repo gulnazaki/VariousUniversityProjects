@@ -1,0 +1,26 @@
+	MVI D,FEH	; D=0xFE, stores LED state
+	MVI B,01H	; set delay 500ms
+	MVI C,F4H
+READ1:
+	LDA 2000H	; read switches
+	RRC
+	JC READ1	; if LSB=1 loop-read
+	RLC
+	RLC
+	JC REV_BLINK	; if MSB=1 blink in reverse
+			; default: blink
+BLINK:
+	MOV A,D		; fetch LED state
+	RLC		; rotate left 
+	MOV D,A		; update D	
+	STA 3000H	; update LED
+	CALL DELB	; delay 500ms
+	JMP READ1	; loop
+REV_BLINK:
+	MOV A,D		; fetch LED state
+	RRC		; rotate right
+	MOV D,A		; update D
+	STA 3000H	; update LED
+	CALL DELB	; delay 500ms
+	JMP READ1	; loop
+END

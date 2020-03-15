@@ -1,0 +1,11 @@
+Id;plan;description;max_quota;duration;amount
+0;F(ree);6 quota forever;6;0;0.0
+1;E;12 quota for 7 days (1 week);12;7;4.99
+2;D;24 quota for 7 days (1 week);24;7;7.99
+3;C;24 quota for 30 days (1 month);24;30;14.99
+4;B;24 quota for 90 days (3 months);24;90;24.99
+5;A;24 quota for 180 days (6 months);24;180;34.99
+6;A+;24 quota for 270 days (9 months);24;270;44.99
+7;A++;48 quota for 365 days (1 year);48;365;79.99
+8;A+++;unlimited quota for 30 days (1 month);-1;30;99.99
+42;DEV;12 quota for 10 minutes (for dev purposes);12;1;1.99

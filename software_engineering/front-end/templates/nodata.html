@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<img src="{{ url_for('static', filename='img/bulb.png') }}" class="img-fluid" alt="no data" style="display: block; margin-left: auto; margin-right: auto; width: 35%;">
+<span class="text-center">
+    <h1><strong>Δεν υπάρχουν διαθέσιμα δεδομένα για τις παραμέτρους που επιλέξατε</strong></h1>
+    <hr/><hr/>
+    <h5><a href="{{ url_for('data') }}">Προσπαθήστε ξανά</a> για διαφορετικές παραμέτρους</h5>
+</span>
+
+{% endblock %}

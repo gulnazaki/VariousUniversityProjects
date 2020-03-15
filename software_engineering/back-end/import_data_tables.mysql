@@ -1,0 +1,19 @@
+USE energy_db;
+
+LOAD DATA LOCAL INFILE './10daysData/ActualTotalLoad-10days.csv'
+INTO TABLE actualTotalLoad
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE './10daysData/AggregatedGenerationPerType-10days.csv'
+INTO TABLE aggreggatedGenerationPerType
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE './10daysData/DayAheadTotalLoadForecast-10days.csv'
+INTO TABLE dayAheadTotalLoadForecast
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;

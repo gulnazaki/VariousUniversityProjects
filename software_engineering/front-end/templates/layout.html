@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- jQuery library -->
+    <script src="{{ url_for('static', filename='lib/jquery.min.js') }}"></script>
+    <!-- jQuery cookie plugin -->
+    <script src="{{ url_for('static', filename='lib/jquery.cookie.min.js') }}"></script>
+    <!-- Popper JS -->
+    <script src="{{ url_for('static', filename='lib/popper.min.js') }}"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="{{ url_for('static', filename='lib/bootstrap.min.js') }}"></script>
+    <!-- bootstrap charts -->
+    <script src="{{ url_for('static', filename='lib/mdb.min.js') }}"></script>
+    <!-- proper rendering/touch zooming -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+     <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap.min.css') }}"/>
+    <!-- general stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+    {% if nav.top.current_item.label %}
+        <title>electra - {{ nav.top.current_item.label }}</title>
+    {% else %}
+        <title>electra - Σύνδεση</title>    
+    {% endif %}
+</head>
+
+<body>
+
+    <!-- navigation bar -->
+    <nav class="navbar navbar-expand-md bg-dark navbar-dark sticky-top">
+
+        <!-- Brand -->
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='img/logo_transparent_black.png') }}" alt="electra" style="width: 80px;">
+        </a>
+
+        <!-- Toggler/collapsibe Button -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+                {% for item in nav.top %}
+                    <li class="nav-item {{ 'active' if item.is_active else '' }}">
+                        <a class="nav-link" href="{{ item.url }}">{{ item.label }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <button class="btn btn-outline-light" href="javascript:;" id="sidebarCollapse"><strong style="color:white;">Αναζήτηση Δεδομένων</strong></button>
+                    
+        </div>
+
+        <!-- Navbar text -->
+        <span id="userprompt" class="navbar-text" style="color: white"/>
+    </nav>
+
+    <!-- error messages from before -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- below navbar: sidebar and content wrapper -->
+    <div class="wrapper" style="display: flex; align-items: stretch;">
+
+        <!-- sidebar -->
+        <nav id="sidebar" class='active' style="padding-left: 20px">
+            <div class="card border-0 shadow my-5 bg-dark">
+                <div class="card-body p-3 mb-3 bg-dark text-white">
+                    <h1>Αναζήτηση<br></h1><hr>
+                    <form action="{{ url_for('data') }}" method="post">
+                        <div class="form-group">
+                            <label for="dataset">Σύνολο Δεδομένων:</label><br>
+                            <select class="form-control" id="dataset" name="dataset">
+                                {% for val, descr in names['dataset_dict'].items() %}
+                                    <option value="{{ val }}">{{ descr }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="areaname">Όνομα Περιοχής:</label><br>
+                            <input type="text" class="form-control" id="areaname" placeholder="Συμπληρώστε το όνομα περιοχής" name="areaname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="resolution">Χρονική Ανάλυση:</label><br>
+                                {% for val, descr in names['res_dict'].items() %}
+                                    <input type="radio" name="resolution" class="radiogroup" id="{{ val }}" value="{{ val }}" required> <label for="{{ val }}">{{ descr }}</label> 
+                                {% endfor %}
+                            </div>
+                        <div class="form-group" id="prodtypediv">
+                            <label for="prodtype">Τύπος Παραγωγής:</label><br>
+                            <select class="form-control" id="prodtype" name="prodtype">
+                                {% for val in names['prodtypes'] %}
+                                    <option value="{{ val }}">{{ val }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="datetype">Επιλογή Αποτελεσμάτων για:</label><br>
+                            <select class="form-control" id="datetype" name="datetype">
+                                <option value="date">Ημέρα</option>
+                                <option value="month">Μήνα</option>
+                                <option value="year">Έτος</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="yearpicker">
+                            <label for="year">Έτος:</label><br>
+                            <input type="text" class="form-control" id="year" placeholder="Συμπληρώστε την ημέρα" name="year" required>
+                        </div>
+                        <div class="form-group" id="monthpicker">
+                            <label for="month">Μήνας:</label><br>
+                            <input type="text" class="form-control" id="month" placeholder="Συμπληρώστε το μήνα" name="month" required>
+                        </div>
+                        <div class="form-group" id="daypicker">
+                            <label for="day">Ημέρα:</label><br>
+                            <input type="text" class="form-control" id="day" placeholder="Συμπληρώστε το έτος" name="day" required>
+                        </div>
+                        <br>
+                        <input type="submit" class="btn btn-outline-light btn-lg" value="Αναζήτηση">
+                    </form>
+                </div>
+            </div>
+        </nav>
+
+        <!-- content -->
+        <div class="container">
+            <div class="card border-0 shadow my-5 bg-dark">
+                <div class="card-body p-3 mb-3 bg-dark text-white">
+                    <!-- actual content -->
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            if (typeof $.cookie('username') === 'undefined') {
+                $('#userprompt').html('Δεν είστε συνδεδεμένος/-η. Συνδεθείτε <a href="{{ url_for('login') }}"><strong>εδώ</strong></a>.');
+            } else {
+                $('#userprompt').html('Είστε συνδεδεμένος/-η ως <strong style="color: rgba(250, 100, 100, 0.8);">' +
+                    $.cookie('username') + '</strong>. Αποσυνδεθείτε <a href="{{ url_for('logout') }}"><strong>εδώ</strong></a>.');
+            }
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+            {% if search %}
+            $('#sidebar').toggleClass('active');
+            {% endif %}
+        });
+
+        $("#dataset").change(function() {
+            if ($(this).val() == "AggregatedGenerationPerType") {
+                $('#prodtypediv').show();
+            } else {
+                $('#prodtypediv').hide();
+            }
+        });
+
+        $('#dataset').trigger("change");
+
+        $("#datetype").change(function() {
+            if ($(this).val() == "date") {
+                $('#monthpicker').show();
+                $('#month').prop("required", true);
+                $('#daypicker').show();
+                $('#day').prop("required", true);
+            } else if ($(this).val() == "month") {
+                $('#monthpicker').show();
+                $('#month').prop("required", true);
+                $('#daypicker').hide();
+                $('#day').prop("required", false);
+            } else {
+                $('#monthpicker').hide();
+                $('#month').prop("required", false);
+                $('#daypicker').hide();
+                $('#day').prop("required", false);
+            }
+        });
+
+        $('#datetype').trigger("change");
+
+    </script>
+
+</body>
+</html>

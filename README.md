@@ -7,15 +7,15 @@ Some C++ solutions to algorithmic problems
 
 
 ## Artificial Intelligence
-Some Java and Prolog // our own Taxibeat/Google Maps app
+Some Java and Prolog (our own Taxibeat/Google Maps app)
 
 
 ## Bioeng
-A hidden hearing loss test python implementation in greek language
+A Python implementation for a hidden hearing loss test in greek
 
 
 ## Compilers
-A lexer and a parser
+A lexer and a parser for an imaginary programming language
 
 
 ## Introduction to Computer Networks
@@ -31,7 +31,7 @@ Python implementation of the NTRU Cryptosystem
 
 
 ## DataBases
-Some SQL, Python, CSS, JS, HTML // our own Car Rental service database, website and all
+Some SQL, Python, CSS, JS, HTML (our own Car Rental service database, website and all)
 
 
 ## Microcomputers
@@ -39,13 +39,13 @@ Some Assembly programs
 
 
 ## Neural Networks
-Some python for introduction to nn
+Neural Network basics in Python
 
 
 ## Natural Language Processing and Speech Processing
-Transforming greeklish to greek text using python and openfst
+Transforming greeklish to greek text using Python and Openfst
 
-Speech recognition using kaldi
+Speech recognition using Kaldi
 
 
 ## Operational Systems

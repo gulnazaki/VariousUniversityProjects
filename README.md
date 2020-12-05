@@ -63,7 +63,7 @@ Speech recognition
 
 Music emotion recognition
 
-*~with PyTorch~*
+*\~with PyTorch\~*
 
 
 ## Introduction to Programming Languages
